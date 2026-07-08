@@ -1,0 +1,14 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Linux | rtk should be functional
+      ansible.builtin.command: rtk --version
+      register: rtk_result
+      changed_when: false
+
+    - name: Linux | Verify commands outputs
+      ansible.builtin.assert:
+        that:
+          - rtk_result.rc == 0
+        success_msg: "All tests passed"

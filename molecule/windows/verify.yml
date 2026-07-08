@@ -1,0 +1,14 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Windows | rtk should be functional
+      ansible.windows.win_command: rtk --version
+      register: rtk_result
+      changed_when: false
+
+    - name: Windows | Verify commands outputs
+      ansible.builtin.assert:
+        that:
+          - rtk_result.rc == 0
+        success_msg: "All tests passed"
