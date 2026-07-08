@@ -1,0 +1,7 @@
+---
+# vars file for rtk in Windows system
+_rtk_target_map:
+  AMD64: x86_64-pc-windows-msvc
+  64-bit: x86_64-pc-windows-msvc
+_rtk_default_pkg_url: "https://github.com/rtk-ai/rtk/releases/download/{{ _rtk_version_to_install }}/rtk-{{ _rtk_target_map[ansible_facts['architecture']] }}.zip"
+_rtk_default_path: C:\rtk\bin\

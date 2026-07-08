@@ -1,0 +1,55 @@
+---
+# tasks file for install rtk on Windows system
+
+- name: Windows | Find all versions of rtk
+  ansible.windows.win_uri:
+    url: https://api.github.com/repos/rtk-ai/rtk/releases/latest
+    return_content: true
+  register: rtk_index
+  check_mode: false
+  retries: 3
+  delay: 5
+  until: rtk_index is success
+  when: rtk_version == "latest"
+
+- name: Windows | Finds the latest rtk version when latest var is define
+  ansible.builtin.set_fact:
+    _rtk_version_to_install: "{{ (rtk_index.content | from_json).name }}"
+  when: rtk_version == "latest"
+
+- name: Windows | Use the specified rtk version when latest var is not define
+  ansible.builtin.set_fact:
+    _rtk_version_to_install: "{{ rtk_version }}"
+  when: rtk_version != "latest"
+
+# This task avoids downloading rtk every time
+- name: Windows | Check if rtk is present on Windows with the right version
+  ansible.windows.win_command: "rtk.exe --version"
+  register: rtk_installed_version
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: Windows | Download rtk
+  ansible.windows.win_get_url:
+    url: "{{ rtk_pkg_url }}"
+    dest: "%TEMP%\\rtk-{{ _rtk_target_map[ansible_facts['architecture']] }}.zip"
+    checksum_url: "{{ rtk_checksum_url if rtk_checksum_verify else omit }}"
+    checksum_algorithm: "{{ 'sha256' if rtk_checksum_verify else omit }}"
+  check_mode: false
+  when: (_rtk_version_to_install | replace('v', '')) not in (rtk_installed_version.stdout_lines | default(['empty']) | first)
+
+- name: Windows | Create rtk folder
+  ansible.windows.win_file:
+    path: "{{ rtk_path }}"
+    state: directory
+
+- name: Windows | Install rtk
+  community.windows.win_unzip:
+    src: "%TEMP%\\rtk-{{ _rtk_target_map[ansible_facts['architecture']] }}.zip"
+    dest: "{{ rtk_path }}"
+  when: (_rtk_version_to_install | replace('v', '')) not in (rtk_installed_version.stdout_lines | default(['empty']) | first)
+
+- name: Windows | Add rtk to PATH
+  ansible.windows.win_path:
+    elements: "{{ rtk_path }}"
