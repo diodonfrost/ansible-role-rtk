@@ -1,0 +1,23 @@
+---
+# defaults file for ansible-role-rtk
+
+# Define rtk version to install
+# Possible values: https://api.github.com/repos/rtk-ai/rtk/releases
+# Default: latest
+rtk_version: latest
+
+# Define where to install rtk binary
+# Default: use local system path defined in Ansible vars/*.yml
+rtk_path: "{{ _rtk_default_path }}"
+
+# Define the URL of the rtk binary to download
+# Default: use the URL defined in Ansible vars/*.yml
+rtk_pkg_url: "{{ _rtk_default_pkg_url }}"
+
+# Enable SHA256 checksum verification of the downloaded archive
+# Default: true
+rtk_checksum_verify: true
+
+# Define the URL of the checksums file used to verify the downloaded archive
+# Default: use the URL defined in Ansible vars/main.yml
+rtk_checksum_url: "{{ _rtk_default_checksum_url }}"

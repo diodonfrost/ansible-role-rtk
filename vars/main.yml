@@ -1,0 +1,4 @@
+---
+# vars file for ansible-role-rtk
+
+_rtk_default_checksum_url: "https://github.com/rtk-ai/rtk/releases/download/{{ _rtk_version_to_install }}/checksums.txt"
