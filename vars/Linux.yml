@@ -1,0 +1,9 @@
+---
+# vars file for rtk in Linux system
+_rtk_target_map:
+  x86_64: x86_64-unknown-linux-musl
+  amd64: x86_64-unknown-linux-musl
+  aarch64: aarch64-unknown-linux-gnu
+  arm64: aarch64-unknown-linux-gnu
+_rtk_default_pkg_url: "https://github.com/rtk-ai/rtk/releases/download/{{ _rtk_version_to_install }}/rtk-{{ _rtk_target_map[ansible_facts['architecture']] }}.tar.gz"
+_rtk_default_path: /usr/local/bin

@@ -1,0 +1,8 @@
+---
+# vars file for rtk in Mac osx system
+_rtk_target_map:
+  x86_64: x86_64-apple-darwin
+  aarch64: aarch64-apple-darwin
+  arm64: aarch64-apple-darwin
+_rtk_default_pkg_url: "https://github.com/rtk-ai/rtk/releases/download/{{ _rtk_version_to_install }}/rtk-{{ _rtk_target_map[ansible_facts['architecture']] }}.tar.gz"
+_rtk_default_path: /usr/local/bin

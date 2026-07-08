@@ -1,0 +1,51 @@
+---
+# tasks file for install rtk on Linux and macOS system
+
+- name: Linux/Unix | Get the latest published full release for the repository
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/rtk-ai/rtk/releases/latest
+    return_content: yes
+    headers:
+      Accept: application/vnd.github.v3+json
+      User-Agent: Ansible
+  register: rtk_index
+  check_mode: false
+  retries: 3
+  delay: 5
+  until: rtk_index is success
+  when: rtk_version == "latest"
+
+- name: Linux/Unix | Filter the latest rtk version
+  ansible.builtin.set_fact:
+    _rtk_version_to_install: "{{ (rtk_index.content | from_json).name }}"
+  when: rtk_version == "latest"
+
+- name: Linux/Unix | Use the specified rtk version when latest var is not define
+  ansible.builtin.set_fact:
+    _rtk_version_to_install: "{{ rtk_version }}"
+  when: rtk_version != "latest"
+
+# This task avoids downloading rtk every time
+- name: Linux/Unix | Check if rtk is present with the right version
+  ansible.builtin.command: "{{ rtk_path }}/rtk --version"
+  register: rtk_installed_version
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: Linux/Unix | Download rtk archive
+  ansible.builtin.get_url:
+    url: "{{ rtk_pkg_url }}"
+    dest: "/tmp/rtk_{{ _rtk_version_to_install }}.tar.gz"
+    checksum: "{{ ('sha256:' + rtk_checksum_url) if rtk_checksum_verify else omit }}"
+    mode: '0644'
+  check_mode: false
+  when: (_rtk_version_to_install | replace('v', '')) not in (rtk_installed_version.stdout | default('empty'))
+
+- name: Linux/Unix | Install rtk
+  ansible.builtin.unarchive:
+    src: "/tmp/rtk_{{ _rtk_version_to_install }}.tar.gz"
+    dest: "{{ rtk_path }}"
+    remote_src: true
+    mode: u+x,g+x,o+x
+  when: (_rtk_version_to_install | replace('v', '')) not in (rtk_installed_version.stdout | default('empty'))
