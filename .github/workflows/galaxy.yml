@@ -1,0 +1,19 @@
+name: galaxy
+
+on:
+  push:
+    tags:
+      - '*'
+  schedule:
+    - cron: '0 18 * * sun'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: Release to Ansible Galaxy
+        uses: robertdebock/galaxy-action@1.2.1
+        with:
+          galaxy_api_key: ${{ secrets.galaxy_api_key }}
